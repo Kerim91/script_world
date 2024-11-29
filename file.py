@@ -1,32 +1,23 @@
-#!/usr/bin/env python3
+#!/bin/bash
 
-import os
+# Sistem bilgileri için gelişmiş script
+get_system_info() {
+    echo "İşletim Sistemi: $(uname -s)"
+    echo "Bilgisayar Adı: $(hostname)"
+    echo "İşlemci: $(uname -m)"
 
-def list_files_in_directory(dosya_yolu, file_extension=None):
-    try:
-        # Klasördeki dosyaları al
-        files = os.listdir(dosya_yolu)
-        
-        # Dosya uzantısını kontrol et ve filtrele
-        if file_extension:
-            files = [file for file in files if file.endswith(file_extension)]
-        
-        # Dosya adlarını yazdır
-        if files:
-            print(f"Bulunan dosyalar ({file_extension if file_extension else 'tümü'}):")
-            for file in files:
-                print(file)
-        else:
-            print(f"'{file_extension if file_extension else 'tümü'}' uzantısına sahip dosya bulunamadı.")
-    
-    except FileNotFoundError:
-        print(f"Verilen yol bulunamadı,tekrar dener misiniz: {dosya_yolu}")
-    except Exception as e:
-        print(f"adminin öngöremediği bir hata oluştu: {e}")
+    # Bellek bilgisi için farklı yöntemler
+    if command -v free &> /dev/null; then
+        echo "Toplam Bellek: $(free -h | grep Mem: | awk '{print $2}')"
+        echo "Kullanılabilir Bellek: $(free -h | grep Mem: | awk '{print $7}')"
+    else
+        echo "Toplam Bellek: $(cat /proc/meminfo | grep MemTotal | awk '{print $2/1024/1024 " GB"}')"
+        echo "Kullanılabilir Bellek: $(cat /proc/meminfo | grep MemAvailable | awk '{print $2/1024/1024 " GB"}')"
+    fi
 
-# Kullanıcıdan klasör yolu ve dosya uzantısını al
-directory = input("Dosyaların listeleneceği klasörün yolunu girin:(/home/user/...) ")
-extension = input("Filtrelemek istediğiniz dosya uzantısını (örneğin .txt) girin (opsiyonel): ")
+    # Disk kullanımı
+    echo "Disk Kullanımı: $(df -h / | awk '/\// {print $5}')"
+}
 
-# Uzantı boşsa, tüm dosyaları listele
-list_files_in_directory(directory, extension if extension else None)
+# Fonksiyonu çağır
+get_system_info
